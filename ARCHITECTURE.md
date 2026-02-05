@@ -8,8 +8,8 @@ The application follows a client–server architecture with a clear separation b
 
 ```mermaid
 graph TD
-    Frontend[Frontend (React + Tailwind)] -->|HTTP (REST)| Backend[Backend API (Node.js + Express)]
-    Backend -->|Prisma ORM| Database[PostgreSQL Database]
+    Frontend["Frontend (React + Tailwind)"] -->|HTTP (REST)| Backend["Backend API (Node.js + Express)"]
+    Backend -->|Prisma ORM| Database["PostgreSQL Database"]
 ```
 
 ### Key Characteristics
