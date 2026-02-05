@@ -26,8 +26,8 @@ async function getTickets({ where, orderBy, skip, take }) {
 
 
 async function getTicketById(id) {
-  return prisma.ticket.findUnique({
-    where: { id },
+  return prisma.ticket.findFirst({
+    where: { id, isDeleted: false },
   });
 }
 
@@ -54,10 +54,18 @@ async function updateTicketById(id, data) {
   });
 }
 
+async function softDeleteTicketById(id) {
+  return prisma.ticket.update({
+    where: { id },
+    data: { isDeleted: true },
+  });
+}
+
 module.exports = {
   createTicket,
   getTickets,
   getTicketById,
   getCommentsByTicketId,
   updateTicketById,
+  softDeleteTicketById
 };

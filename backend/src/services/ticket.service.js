@@ -22,7 +22,8 @@ async function getTickets(query) {
     limit = 10,
   } = query;
 
-  const where = {};
+  // ALWAYS exclude soft-deleted tickets
+  const where = { isDeleted: false };
 
   // Search (title OR description)
   if (q) {
@@ -96,10 +97,24 @@ async function updateTicket(id, updateData) {
   return ticketRepository.updateTicketById(id, updateData);
 }
 
+async function deleteTicket(id) {
+  const ticket = await ticketRepository.getTicketById(id);
+
+  if (!ticket || ticket.isDeleted) {
+    const error = new Error("Ticket not found");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  await ticketRepository.softDeleteTicketById(id);
+}
+
+
 
 module.exports = {
   createTicket,
   getTickets,
   getTicketDetail,
   updateTicket,
+  deleteTicket
 };

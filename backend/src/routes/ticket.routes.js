@@ -11,6 +11,8 @@ router.get("/", ticketController.getTickets);
 router.get("/:id", ticketController.getTicketDetail);
 router.post("/:id/comments", commentController.addComment);
 router.patch("/:id", ticketController.updateTicket);
+router.delete("/:id", ticketController.deleteTicket);
+
 
 
 

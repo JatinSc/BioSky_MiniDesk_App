@@ -83,10 +83,24 @@ async function updateTicket(req, res, next) {
   }
 }
 
+async function deleteTicket(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    await ticketService.deleteTicket(id);
+
+    res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+}
+
+
 
 module.exports = {
   createTicket,
   getTickets,
   getTicketDetail,
   updateTicket,
+  deleteTicket
 };
