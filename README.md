@@ -14,9 +14,9 @@ BioSky Mini Support Desk is a modern, full-stack ticket management application d
 
 ## 🛠️ Setup & Installation
 
-### Prerequisites
-- Node.js (v18+ recommended)
-- PostgreSQL installed and running
+### Prerequisites for local setup
+- Node.js (v18+)
+- PostgreSQL installed and running locally (required for local development)
 
 ### 1. Clone the repository
 ```bash
