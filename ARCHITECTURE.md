@@ -6,10 +6,17 @@ This document describes the overall architecture, backend API design, and data f
 
 The application follows a client–server architecture with a clear separation between frontend, backend, and database layers.
 
-```mermaid
-graph TD
-    Frontend[Frontend (React + Tailwind)] -->|HTTP (REST)| Backend[Backend API (Node.js + Express)]
-    Backend -->|Prisma ORM| Database[PostgreSQL Database]
+```
++-------------------------------+          +-------------------------------------+
+|  Frontend (React + Tailwind)  |          |  Backend API (Node.js + Express)    |
+|                               |--(HTTP)-->|                                     |
++-------------------------------+          +-------------------------------------+
+                                                          |
+                                                          | (Prisma ORM)
+                                                          v
+                                           +-------------------------------------+
+                                           |      Database (PostgreSQL)          |
+                                           +-------------------------------------+
 ```
 
 ### Key Characteristics
@@ -243,7 +250,111 @@ Description: Used to verify server availability.
 ```
 *Returns 404 if the ticket does not exist.*
 
-## 5. Frontend Architecture (Summary)
+## 5. Scalability Considerations
+
+The system is designed to scale gradually as data volume and usage grow.
+
+### Large Ticket Lists
+- **Tickets are never fetched all at once.**
+- All list endpoints use **server-side pagination** with `page` and `limit` parameters.
+- Only the required subset of tickets is returned per request.
+- Soft-deleted tickets are excluded at the query level to avoid unnecessary data processing.
+
+This ensures predictable performance even as the number of tickets grows.
+
+### Search Performance
+Search is implemented at the database level using indexed fields.
+- Queries use `WHERE` conditions with `contains` on title and description.
+- **Indexes** are added on commonly queried fields such as:
+  - `status`
+  - `priority`
+  - `createdAt`
+  - `isDeleted`
+
+**For future scale**, the design can be extended to:
+- Full-text search using PostgreSQL `tsvector`
+- Dedicated search services (e.g., Elasticsearch)
+
+The current approach balances performance and simplicity for the expected data size.
+
+### Pagination Strategy
+Pagination is handled entirely on the backend using:
+- `skip` and `take` (Prisma)
+- A separate count query for total records
+- Metadata (`total`, `page`, `limit`) is returned to the frontend to support UI pagination.
+
+This avoids loading unnecessary data and keeps frontend memory usage low.
+
+## 6. Reliability
+
+### Error Handling Strategy
+A global error handling middleware is used in the backend.
+- All errors are returned as **structured JSON responses**.
+- HTTP status codes are explicitly set (400, 404, 500).
+
+**Example error response:**
+```json
+{
+  "success": false,
+  "message": "Ticket not found"
+}
+```
+
+This ensures:
+- Consistent error responses
+- No leaking of internal stack traces in production
+
+### Validation
+Request validation is performed using **Zod** at the controller layer.
+- Invalid inputs are rejected before reaching the service or database layers.
+- Partial updates (PATCH) validate only the provided fields.
+
+**Validation rules cover:**
+- Required fields
+- Field length limits
+- Enum values
+- Empty update requests
+
+### Edge Case Handling
+The system explicitly handles common edge cases:
+- Accessing non-existent or soft-deleted tickets
+- Empty ticket lists
+- Invalid query parameters
+- Empty update payloads
+- Comment creation on invalid tickets
+
+Each case returns a meaningful error message with an appropriate HTTP status.
+
+## 7. Tradeoffs
+
+### What Was Intentionally Skipped
+
+#### Authentication & Authorization
+- No user authentication (login/signup) was implemented.
+- The system assumes a trusted environment for simplicity.
+- **Reason:** The assignment focuses on backend architecture, API design, and data handling rather than user management.
+
+#### Real-Time Updates
+- No WebSocket or real-time updates were added.
+- Ticket updates require a page refresh or refetch.
+- **Reason:** Polling and refetching via React Query is sufficient for the expected scale.
+
+#### Advanced Search Infrastructure
+- Full-text search engines were not integrated.
+- No fuzzy matching or ranking.
+- **Reason:** PostgreSQL-based search is adequate for small-to-medium datasets and keeps the system lightweight.
+
+#### Role-Based Access Control
+- All users can create, update, and comment on tickets.
+- **Reason:** RBAC would add significant complexity without being required by the assignment.
+
+### Tradeoff Summary
+The implementation prioritizes:
+- **Clarity** over premature optimization
+- **Realistic production patterns** over unnecessary features
+- **A strong architectural foundation** that can be extended later
+
+## 8. Frontend Architecture (Summary)
 
 The frontend is built using:
 - **React**
@@ -257,7 +368,7 @@ The frontend is built using:
 
 This avoids unnecessary global state and keeps responsibilities clear.
 
-## 6. Environment & Deployment
+## 9. Environment & Deployment
 
 ### Environment Variables
 All sensitive configuration is handled via environment variables.
@@ -281,7 +392,7 @@ prisma migrate deploy
 ```
 *Seed data is development-only and not applied in production.*
 
-## 7. Key Design Decisions
+## 10. Key Design Decisions
 
 - **Layered backend architecture** for scalability
 - **Soft delete** instead of hard delete
@@ -289,6 +400,6 @@ prisma migrate deploy
 - **Separate client and server state** on frontend
 - **Managed PostgreSQL** for production reliability
 
-## 8. Conclusion
+## 11. Conclusion
 
 The BioSky Mini Support Desk application is designed to reflect real-world production practices, emphasizing clean architecture, maintainability, and clear separation of concerns across the stack.
