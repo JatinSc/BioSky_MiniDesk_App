@@ -1,10 +1,11 @@
 import Router from "./router";
+import Layout from "../components/Layout";
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <Layout>
       <Router />
-    </div>
+    </Layout>
   );
 }
 

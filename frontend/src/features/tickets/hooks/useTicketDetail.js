@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { getTicketDetail } from "../../../api/tickets.api";
 
-export function useTicketDetail(ticketId, page = 1, limit = 5) {
+export function useTicketDetail(ticketId) {
   return useQuery({
-    queryKey: ["ticket", ticketId, page],
+    queryKey: ["ticket", ticketId],
     queryFn: () =>
-      getTicketDetail(ticketId, { page, limit }),
+      getTicketDetail(ticketId, { page: 1, limit: 1000 }),
     enabled: !!ticketId,
   });
 }

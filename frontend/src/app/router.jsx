@@ -10,6 +10,7 @@ function Router() {
       <Route path="/" element={<Navigate to="/tickets" />} />
       <Route path="/tickets" element={<TicketsList />} />
       <Route path="/tickets/new" element={<CreateTicket />} />
+      <Route path="/tickets/:id/edit" element={<CreateTicket />} />
       <Route path="/tickets/:id" element={<TicketDetail />} />
     </Routes>
   );
