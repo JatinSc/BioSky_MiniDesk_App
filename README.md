@@ -2,7 +2,7 @@
 
 BioSky Mini Support Desk is a modern, full-stack ticket management application designed to streamline support operations. It features a clean, responsive user interface and a robust, scalable backend architecture.
 
-### deployed at: https://biosky-minidesk-app-h1ya.onrender.com/tickets
+### deployed at: https://biosky-minidesk-app-h1ya.onrender.com/
 
 ## 🚀 Tech Stack
 
